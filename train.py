@@ -37,6 +37,7 @@ from auction_match import auction_match
 from dataset import PUNET_Dataset
 import numpy as np
 import importlib
+from tqdm import tqdm
 
 
 class UpsampleLoss(nn.Module):
@@ -127,11 +128,12 @@ if __name__ == '__main__':
     loss_func = UpsampleLoss(alpha=args.alpha)
 
     model.train()
+    best_loss = 1000
     for epoch in range(args.max_epoch):
         loss_list = []
         emd_loss_list = []
         rep_loss_list = []
-        for batch in train_loader:
+        for batch in tqdm(train_loader):
             optimizer.zero_grad()
             input_data, gt_data, radius_data = batch
 
@@ -156,7 +158,14 @@ if __name__ == '__main__':
         
         if lr_scheduler is not None:
             lr_scheduler.step(epoch)
-        if (epoch + 1) % 20 == 0:
+
+        state = {'epoch': epoch, 'model_state': model.state_dict()}
+        save_path = os.path.join(args.log_dir, 'punet.pth')
+        torch.save(state, save_path)
+
+        if(best_loss > np.mean(loss_list)):
+            best_loss = np.mean(loss_list)
             state = {'epoch': epoch, 'model_state': model.state_dict()}
-            save_path = os.path.join(args.log_dir, 'punet_epoch_{}.pth'.format(epoch))
+            save_path = os.path.join(args.log_dir, 'punet_best.pth')
+            print("Best Model Saved at epoch {}".format(epoch))
             torch.save(state, save_path)
