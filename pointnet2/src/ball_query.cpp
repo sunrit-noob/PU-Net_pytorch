@@ -19,7 +19,6 @@ int ball_query_wrapper_fast(int b, int n, int m, float radius, int nsample,
     const float *xyz = xyz_tensor.data_ptr<float>();
     int *idx = idx_tensor.data_ptr<int>();
     
-    cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
-    ball_query_kernel_launcher_fast(b, n, m, radius, nsample, new_xyz, xyz, idx, stream);
+    ball_query_kernel_launcher_fast(b, n, m, radius, nsample, new_xyz, xyz, idx);
     return 1;
 }
