@@ -10,7 +10,7 @@ class PUNET_Dataset_Whole(torch_data.Dataset):
         super().__init__()
 
         file_list = os.listdir(data_dir)
-        self.names = [x.split('.')[0] for x in file_list]
+        self.names = [x.replace(".xyz", "") for x in file_list]
         self.sample_path = [os.path.join(data_dir, x) for x in file_list]
 
     def __len__(self):
